@@ -49,6 +49,7 @@ from config import (
     TOKEN_PRICE,
     TRX_SIGNAL,
     URL_ARRAY,
+    TOKEN
 )
 from constant import BotText
 from database import InfluxDB, MySQL, Redis
@@ -510,6 +511,31 @@ def search_ytb(kw: str):
         index = results.index(item) + 1
         text += f"{index}. {title}\n{link}\n\n"
     return text
+
+
+@app.on_message(filters.incoming & (filters.text | filters.document))
+@private_use
+def download_handler(client: Client, message: types.Message):
+    redis = Redis()
+    payment = Payment()
+    chat_id = message.from_user.id
+    client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+    redis.user_count(chat_id)
+
+    if message.document:
+        file = message.document
+        try:
+            # Construct the CDN link (replace 'BOT_TOKEN' with your actual bot token)
+            # This is an example, and the link format might change.
+            # It is also IP-bound and has a limited duration
+            cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{app.get_file(file.file_id).file_path}" 
+            message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
+        except Exception as e:
+            message.reply_text(f"Error getting file info: {e}", quote=True)
+        
+        msgLink = contents.split()
+    else:
+        # ... (rest of the code for handling text links)
 
 
 @app.on_message(filters.incoming & (filters.text | filters.document))
