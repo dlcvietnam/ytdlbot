@@ -32,7 +32,8 @@ from config import (
     IPv6,
     API_TAOBAO,
     API_TAOBAO2,
-    API_PDD
+    API_PDD,
+    BEARER_TOKEN
 )
 from downloader import (
     edit_text,
@@ -57,12 +58,17 @@ def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
     """Download media from Taobao."""
     payment = Payment()
     user_id = bm.chat.id
+    bearer_token = BEARER_TOKEN
+    if not bearer_token:
+        raise EnvironmentError("Missing BEARER_TOKEN environment variable.")
     taobao_id = extract_taobao_id(url)
     if not taobao_id:
         raise ValueError("Invalid Taobao link format.")
     payload = {'id': taobao_id}
-    headers = {'Content-Type': 'application/json'}
-    
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {bearer_token}',
+    }
     try:
         response = requests.post(API_TAOBAO, headers=headers, data=json.dumps(payload))
         logging.info(f"Response from first API: {response}")
