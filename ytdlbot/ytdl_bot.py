@@ -535,7 +535,7 @@ def download_handler(client: Client, message: types.Message):
         
         msgLink = contents.split()
     else:
-        # ... (rest of the code for handling text links)
+        message.reply_text(f"Direct CDN link error", quote=True)
 
 
 @app.on_message(filters.incoming & (filters.text | filters.document))
