@@ -532,8 +532,6 @@ def download_handler(client: Client, message: types.Message):
             message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
         except Exception as e:
             message.reply_text(f"Error getting file info: {e}", quote=True)
-        
-        msgLink = contents.split()
     else:
         message.reply_text(f"Direct CDN link error", quote=True)
 
