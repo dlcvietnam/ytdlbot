@@ -522,7 +522,7 @@ def upload_handler(client: Client, message: types.Message):
     logging.info("Admin Upload file")
     logging.info(username)
     logging.info(message.from_user)
-    if username == OWNER
+    if username == OWNER:
         redis = Redis()
         payment = Payment()
         chat_id = message.from_user.id
