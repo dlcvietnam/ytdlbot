@@ -513,30 +513,30 @@ def search_ytb(kw: str):
     return text
 
 
-# @app.on_message(filters.incoming & (filters.text | filters.document))
-# @private_use
-# def download_handler(client: Client, message: types.Message):
-#     redis = Redis()
-#     payment = Payment()
-#     chat_id = message.from_user.id
-#     client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-#     redis.user_count(chat_id)
+@app.on_message(filters.incoming & (filters.document))
+@private_use
+def upload_handler(client: Client, message: types.Message):
+    redis = Redis()
+    payment = Payment()
+    chat_id = message.from_user.id
+    client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+    redis.user_count(chat_id)
 
-#     if message.document:
-#         file = message.document
-#         try:
-#             # Construct the CDN link (replace 'BOT_TOKEN' with your actual bot token)
-#             # This is an example, and the link format might change.
-#             # It is also IP-bound and has a limited duration
-#             cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{app.get_file(file.file_id).file_path}" 
-#             message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
-#         except Exception as e:
-#             message.reply_text(f"Error getting file info: {e}", quote=True)
-#     else:
-#         message.reply_text(f"Direct CDN link error", quote=True)
+    if message.document:
+        file = message.document
+        try:
+            # Construct the CDN link (replace 'BOT_TOKEN' with your actual bot token)
+            # This is an example, and the link format might change.
+            # It is also IP-bound and has a limited duration
+            cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{app.get_file(file.file_id).file_path}" 
+            message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
+        except Exception as e:
+            message.reply_text(f"Error getting file info: {e}", quote=True)
+    else:
+        message.reply_text(f"Direct CDN link error", quote=True)
 
 
-@app.on_message(filters.incoming & (filters.text | filters.document))
+@app.on_message(filters.incoming & (filters.text))
 @private_use
 def download_handler(client: Client, message: types.Message):
     redis = Redis()
