@@ -554,7 +554,7 @@ def upload_handler(client: Client, message: types.Message):
                             'Authorization': f'Bearer {BEARER_TOKEN}',
                         }
                         try:
-                            response = requests.post(f"https://{API_TAOBAO}/update_cookies}", headers=headers, data=json.dumps(payload))
+                            response = requests.post(f"https://{API_TAOBAO}/update_cookies", headers=headers, data=json.dumps(payload))
                             logging.info(f"Response from first API: {response}")
                             logging.info(f"Response content: {response.content.decode('utf-8')}")
                             logging.info(cdn_link)
