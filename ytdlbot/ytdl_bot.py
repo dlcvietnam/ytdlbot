@@ -518,33 +518,38 @@ def search_ytb(kw: str):
 @app.on_message(filters.incoming & filters.document)
 @private_use
 def upload_handler(client: Client, message: types.Message):
-    redis = Redis()
-    payment = Payment()
-    chat_id = message.from_user.id
-    client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-    redis.user_count(chat_id)
-
-    # Process document
-    file = message.document
-    try:
-        get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
-        response = requests.get(get_file_url)
-        if response.status_code == 200:
-            file_info = response.json()
-            logging.info(f"Result from simulating getFile: {file_info}")
-            # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
-            if "result" in file_info and "file_path" in file_info["result"]:
-                file_path = file_info["result"]["file_path"]
-                cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
-                message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
+    username = message.from_user.username
+    logging.info("Admin Upload file")
+    logging.info(username)
+    logging.info(message.from_user)
+    if username == OWNER
+        redis = Redis()
+        payment = Payment()
+        chat_id = message.from_user.id
+        client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+        redis.user_count(chat_id)
+    
+        # Process document
+        file = message.document
+        try:
+            get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
+            response = requests.get(get_file_url)
+            if response.status_code == 200:
+                file_info = response.json()
+                logging.info(f"Result from simulating getFile: {file_info}")
+                # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
+                if "result" in file_info and "file_path" in file_info["result"]:
+                    file_path = file_info["result"]["file_path"]
+                    cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
+                    message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
+                else:
+                    message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
             else:
-                message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
-        else:
-            message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
-
-        return
-    except Exception as e:
-        message.reply_text(f"Error getting file info: {e}", quote=True)
+                message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
+    
+            return
+        except Exception as e:
+            message.reply_text(f"Error getting file info: {e}", quote=True)
 
 
 @app.on_message(filters.incoming & (filters.text))
