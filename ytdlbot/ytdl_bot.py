@@ -513,7 +513,7 @@ def search_ytb(kw: str):
     return text
 
 
-@app.on_message(filters.incoming & (filters.document))
+@app.on_message(filters.incoming & filters.document)
 @private_use
 def upload_handler(client: Client, message: types.Message):
     redis = Redis()
@@ -522,20 +522,20 @@ def upload_handler(client: Client, message: types.Message):
     client.send_chat_action(chat_id, enums.ChatAction.TYPING)
     redis.user_count(chat_id)
 
-    if message.document:
-        file = message.document
-        logging.info(file)
-        logging.info(TOKEN)
-        try:
-            # Construct the CDN link (replace 'BOT_TOKEN' with your actual bot token)
-            # This is an example, and the link format might change.
-            # It is also IP-bound and has a limited duration
-            cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{app.get_file(file.file_id).file_path}" 
-            message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
-        except Exception as e:
-            message.reply_text(f"Error getting file info: {e}", quote=True)
-    else:
-        message.reply_text(f"Direct CDN link error", quote=True)
+    # Process document
+    file = message.document
+    try:
+        # Get file path from Telegram server
+        file_info = client.get_file(file.file_id)
+        file_path = file_info.file_path
+        
+        # Generate CDN link
+        cdn_link = f"https://api.telegram.org/file/bot{client.bot_token}/{file_path}"
+        
+        # Reply with the link
+        message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
+    except Exception as e:
+        message.reply_text(f"Error getting file info: {e}", quote=True)
 
 
 @app.on_message(filters.incoming & (filters.text))
