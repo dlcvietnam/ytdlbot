@@ -517,7 +517,7 @@ def search_ytb(kw: str):
     return text
 
 
-@app.on_message(filters.incoming & filters.document & filters.document.mime_type("text/plain"))
+@app.on_message(filters.incoming & filters.document & filters.document.file_name.endswith('.txt'))
 @private_use
 def upload_handler(client: Client, message: types.Message):
     logging.info(message.from_user)
