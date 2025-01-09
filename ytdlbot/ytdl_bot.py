@@ -524,6 +524,8 @@ def upload_handler(client: Client, message: types.Message):
 
     if message.document:
         file = message.document
+        logging.info(file)
+        logging.info(TOKEN)
         try:
             # Construct the CDN link (replace 'BOT_TOKEN' with your actual bot token)
             # This is an example, and the link format might change.
