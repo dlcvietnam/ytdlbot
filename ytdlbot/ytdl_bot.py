@@ -526,7 +526,7 @@ def upload_handler(client: Client, message: types.Message):
     file = message.document
     try:
         # Lấy file_path đúng cách
-        file_info = client.invoke(types.functions.GetFile(file_id=file.file_id))
+        file_info = client.invoke(functions.GetFile(file_id=file.file_id))
         file_path = file_info.file_path
         logging.info(file_info)
         logging.info(file_path)
