@@ -17,6 +17,8 @@ import re
 import tempfile
 import time
 import traceback
+import requests
+
 from io import BytesIO
 from typing import Any
 from urllib.parse import parse_qs, urlparse, unquote
@@ -525,9 +527,8 @@ def upload_handler(client: Client, message: types.Message):
     # Process document
     file = message.document
     try:
-        get_file_url = f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file.file_id}"
+        get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
         response = requests.get(get_file_url)
-
         if response.status_code == 200:
             file_info = response.json()
             logging.info(f"Result from simulating getFile: {file_info}")
