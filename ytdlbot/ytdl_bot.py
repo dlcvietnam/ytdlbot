@@ -525,23 +525,24 @@ def upload_handler(client: Client, message: types.Message):
     # Process document
     file = message.document
     try:
-        # Lấy file_path đúng cách
-        input_file_location = raw_types.InputDocumentFileLocation(
-            id=file.file_id,
-            access_hash=file.file_unique_id,
-            file_reference=file.file_reference,
-            thumb_size=''
-        )
-        file_info = client.invoke(functions.upload.GetFile(
-            location=input_file_location,
-            limit=1024 * 1024
-            # offset=0  # Có thể bỏ qua, mặc định là 0
-        ))
-        logging.info(file_info)
-        
-        # Gửi thông tin file cho người dùng (ví dụ)
-        message.reply_text(f"File info:\n{file_info}", quote=True)
+        get_file_url = f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file.file_id}"
+            response = requests.get(get_file_url)
+            logging.info(response)
+            if response.status_code == 200:
+                file_info = response.json()
+                logging.info(f"Result from simulating getFile: {file_info}")
 
+                # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
+                if "result" in file_info and "file_path" in file_info["result"]:
+                    file_path = file_info["result"]["file_path"]
+                    cdn_link = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+                    message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
+                else:
+                    message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+            else:
+                message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
+
+            return
     except Exception as e:
         message.reply_text(f"Error getting file info: {e}", quote=True)
 
