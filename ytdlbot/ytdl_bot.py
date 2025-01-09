@@ -526,15 +526,16 @@ def upload_handler(client: Client, message: types.Message):
     file = message.document
     try:
         # Lấy file_path đúng cách
-        file_info = client.get_file(file.file_id)
+        file_info = client.invoke(functions.upload.GetFile(file_id=file.file_id))
+        # file_info = client.get_file(file.file_id)
         logging.info(file_info)
-        file_path = file_info.file_path
-        logging.info(file_path)
+        #file_path = file_info.file_path
+        #logging.info(file_path)
         # Tạo đường link CDN
-        cdn_link = f"https://api.telegram.org/file/bot{client.bot_token}/{file_path}"
+        # cdn_link = f"https://api.telegram.org/file/bot{client.bot_token}/{file_path}"
         
         # Gửi link cho người dùng
-        message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{cdn_link}", quote=True)
+        message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{file_info)}", quote=True)
     except Exception as e:
         message.reply_text(f"Error getting file info: {e}", quote=True)
 
