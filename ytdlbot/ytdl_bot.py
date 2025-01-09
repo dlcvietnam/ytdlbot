@@ -547,6 +547,7 @@ def upload_handler(client: Client, message: types.Message):
                             file_path = file_info["result"]["file_path"]
                             cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
                             message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
+                            redis.update_metrics("upload_cookies_request")
                         else:
                             message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
                     else:
@@ -556,7 +557,6 @@ def upload_handler(client: Client, message: types.Message):
                 except Exception as e:
                     message.reply_text(f"Error getting file info: {e}", quote=True)
 
-        redis.update_metrics("upload_cookies_request")
 
 @app.on_message(filters.incoming & (filters.text))
 @private_use
