@@ -518,11 +518,11 @@ def search_ytb(kw: str):
 @app.on_message(filters.incoming & filters.document)
 @private_use
 def upload_handler(client: Client, message: types.Message):
-    username = message.from_user.username
-    logging.info("Admin Upload file")
-    logging.info(username)
     logging.info(message.from_user)
     if username == OWNER:
+        username = message.from_user.username
+        userid = message.from_user.id
+        logging.info(f"Admin {username} with id {userid} Upload file")
         redis = Redis()
         payment = Payment()
         chat_id = message.from_user.id
