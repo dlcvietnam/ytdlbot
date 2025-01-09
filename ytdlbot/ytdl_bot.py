@@ -519,6 +519,8 @@ def search_ytb(kw: str):
 @private_use
 def upload_handler(client: Client, message: types.Message):
     logging.info(message.from_user)
+    username = message.from_user.username
+    chat_id = message.from_user.id
     if ENABLE_VIP:
     	redis = Redis()
     	payment = Payment()
@@ -529,8 +531,6 @@ def upload_handler(client: Client, message: types.Message):
     		message.reply_text(f"Tính năng chỉ dành cho VIP Member", quote=True)
     		return
     	else:
-    		username = message.from_user.username
-    		chat_id = message.from_user.id
     		logging.info(f"Admin {username} with id {chat_id} Upload file")
     		client.send_chat_action(chat_id, enums.ChatAction.TYPING)
     		redis.user_count(chat_id)
