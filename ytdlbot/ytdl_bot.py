@@ -517,7 +517,7 @@ def search_ytb(kw: str):
     return text
 
 
-@app.on_message(filters.incoming & filters.document & filters.document.file_name.endswith('.txt'))
+@app.on_message(filters.incoming & filters.document)
 @private_use
 def upload_handler(client: Client, message: types.Message):
     logging.info(message.from_user)
@@ -545,7 +545,7 @@ def upload_handler(client: Client, message: types.Message):
                     file_info = response.json()
                     logging.info(f"Result from simulating getFile: {file_info}")
                     # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
-                    if "result" in file_info and "file_path" in file_info["result"]:
+                    if "result" in file_info and "file_path" in file_info["result"] and file_info["result"]["file_path"].endswith(".txt"):
                         file_path = file_info["result"]["file_path"]
                         cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
                         payload = {'uid': chat_id, 'url': cdn_link}
@@ -567,7 +567,7 @@ def upload_handler(client: Client, message: types.Message):
                             logging.error(f"Error during first API request: {e}")
                             raise
                     else:
-                        message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+                        message.reply_text("Có lỗi xảy ra hoặc file bạn gửi không phải là file .txt.", quote=True)
                 else:
                     message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
                 return
