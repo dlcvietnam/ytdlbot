@@ -535,7 +535,7 @@ def upload_handler(client: Client, message: types.Message):
             # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
             if "result" in file_info and "file_path" in file_info["result"]:
                 file_path = file_info["result"]["file_path"]
-                cdn_link = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+                cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
                 message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
             else:
                 message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
