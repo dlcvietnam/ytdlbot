@@ -519,38 +519,44 @@ def search_ytb(kw: str):
 @private_use
 def upload_handler(client: Client, message: types.Message):
     logging.info(message.from_user)
-    if username == OWNER:
-        username = message.from_user.username
-        userid = message.from_user.id
-        logging.info(f"Admin {username} with id {userid} Upload file")
-        redis = Redis()
-        payment = Payment()
-        chat_id = message.from_user.id
-        client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-        redis.user_count(chat_id)
-    
-        # Process document
-        file = message.document
-        try:
-            get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
-            response = requests.get(get_file_url)
-            if response.status_code == 200:
-                file_info = response.json()
-                logging.info(f"Result from simulating getFile: {file_info}")
-                # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
-                if "result" in file_info and "file_path" in file_info["result"]:
-                    file_path = file_info["result"]["file_path"]
-                    cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
-                    message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
-                else:
-                    message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+    if ENABLE_VIP:
+            free, pay, reset = payment.get_token(chat_id)
+            logging.info(pay)
+            logging.info(free)
+            if (int(pay) <= 0) or (username == OWNER):
+                message.reply_text(f"Tính năng chỉ dành cho VIP Member", quote=True)
+                return
             else:
-                message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
-    
-            return
-        except Exception as e:
-            message.reply_text(f"Error getting file info: {e}", quote=True)
+                username = message.from_user.username
+                chat_id = message.from_user.id
+                logging.info(f"Admin {username} with id {chat_id} Upload file")
+                redis = Redis()
+                payment = Payment()
+                client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+                redis.user_count(chat_id)
+                # Process document
+                file = message.document
+                try:
+                    get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
+                    response = requests.get(get_file_url)
+                    if response.status_code == 200:
+                        file_info = response.json()
+                        logging.info(f"Result from simulating getFile: {file_info}")
+                        # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
+                        if "result" in file_info and "file_path" in file_info["result"]:
+                            file_path = file_info["result"]["file_path"]
+                            cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
+                            message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
+                        else:
+                            message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+                    else:
+                        message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
+            
+                    return
+                except Exception as e:
+                    message.reply_text(f"Error getting file info: {e}", quote=True)
 
+        redis.update_metrics("upload_cookies_request")
 
 @app.on_message(filters.incoming & (filters.text))
 @private_use
