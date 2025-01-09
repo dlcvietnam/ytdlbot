@@ -535,7 +535,7 @@ def upload_handler(client: Client, message: types.Message):
         # cdn_link = f"https://api.telegram.org/file/bot{client.bot_token}/{file_path}"
         
         # Gửi link cho người dùng
-        message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{file_info)}", quote=True)
+        message.reply_text(f"Direct CDN link (may expire or be IP-restricted):\n{file_info}", quote=True)
     except Exception as e:
         message.reply_text(f"Error getting file info: {e}", quote=True)
 
