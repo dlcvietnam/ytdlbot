@@ -70,7 +70,7 @@ def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
         'Authorization': f'Bearer {bearer_token}',
     }
     try:
-        response = requests.post(API_TAOBAO, headers=headers, data=json.dumps(payload))
+        response = requests.post(f"https://{API_TAOBAO}/get_tb_details", headers=headers, data=json.dumps(payload))
         logging.info(f"Response from first API: {response}")
         logging.info(f"Response content: {response.content.decode('utf-8')}")
         if response.status_code != 200:
