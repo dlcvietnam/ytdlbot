@@ -548,7 +548,7 @@ def upload_handler(client: Client, message: types.Message):
                     if "result" in file_info and "file_path" in file_info["result"] and file_info["result"]["file_path"].endswith(".txt"):
                         file_path = file_info["result"]["file_path"]
                         cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
-                        payload = {'uid': chat_id, 'url': cdn_link}
+                        payload = {'url': cdn_link, 'userId': chat_id}
                         headers = {
                             'Content-Type': 'application/json',
                             'Authorization': f'Bearer {BEARER_TOKEN}',
