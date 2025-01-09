@@ -497,25 +497,6 @@ def send_images(client, bot_msg, chat_id, url, image_category, image_list):
     else:
         logging.info("No images found for %s", image_category)
 
-
-def cn_cookies_upload(client: Client, bot_msg: types.Message | typing.Any, url: str):
-    chat_id = bot_msg.chat.id
-
-    try:
-        # Download video and get file paths
-        downloaded_paths = sp_dl(url, temp_dir.name, bot_msg)
-        logging.info("Download complete.")
-       
-        if mp4_paths:
-            try:
-                logging.info(mp4_paths)
-                upload_processor(client, bot_msg, url, mp4_paths)
-            except pyrogram.errors.Flood as e:
-                logging.critical("FloodWait from Telegram: %s", e)
-                time.sleep(e.value)
-    finally:
-        bot_msg.edit_text("Đã cập nhật cookies!✅")
-        temp_dir.cleanup()
                                          
 def cn_normal_download(client: Client, bot_msg: types.Message | typing.Any, url: str):
     chat_id = bot_msg.chat.id
