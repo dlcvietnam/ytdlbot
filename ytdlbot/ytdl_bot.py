@@ -526,23 +526,22 @@ def upload_handler(client: Client, message: types.Message):
     file = message.document
     try:
         get_file_url = f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file.file_id}"
-            response = requests.get(get_file_url)
-            logging.info(response)
-            if response.status_code == 200:
-                file_info = response.json()
-                logging.info(f"Result from simulating getFile: {file_info}")
+        response = requests.get(get_file_url)
 
-                # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
-                if "result" in file_info and "file_path" in file_info["result"]:
-                    file_path = file_info["result"]["file_path"]
-                    cdn_link = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
-                    message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
-                else:
-                    message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+        if response.status_code == 200:
+            file_info = response.json()
+            logging.info(f"Result from simulating getFile: {file_info}")
+            # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
+            if "result" in file_info and "file_path" in file_info["result"]:
+                file_path = file_info["result"]["file_path"]
+                cdn_link = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+                message.reply_text(f"Simulated CDN link (likely invalid): {cdn_link}", quote=True)
             else:
-                message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
+                message.reply_text("Could not retrieve file_path using simulated getFile.", quote=True)
+        else:
+            message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
 
-            return
+        return
     except Exception as e:
         message.reply_text(f"Error getting file info: {e}", quote=True)
 
