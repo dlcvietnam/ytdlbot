@@ -527,7 +527,7 @@ def upload_handler(client: Client, message: types.Message):
     	free, pay, reset = payment.get_token(chat_id)
     	logging.info(pay)
     	logging.info(free)
-    	if (int(pay) <= 0) or (username == OWNER):
+    	if (int(pay) <= 0) or (username != OWNER):
     		message.reply_text(f"Tính năng chỉ dành cho VIP Member", quote=True)
     		return
     	else:
