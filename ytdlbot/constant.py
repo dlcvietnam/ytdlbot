@@ -31,20 +31,16 @@ class BotText:
 
     help = """
 Gửi đúng định dạng link để ít gặp lỗi không đáng có!
-1. Hỗ trợ tải từ Taobao (link dạng item.taobao.com, tmall.com, tb.cn...)
-
-2. Hỗ trợ tải từ Pindoudou (link dạng mobile.yangkedou.com)
-
-3. Tải từ YouTube và các trang media lớn (kể cả pornhub, xnxx...) mà plugin yt-dlp hỗ trợ, chỉ cần gửi link để thử.
-
-4. Một số link đặc biệt cần dùng lệnh `/spdl {liên kết}`. Xem thêm các link đó tại https://github.com/SanujaNS/ytdlbot-telegram#supported-websites 
-
-5. Gặp lỗi hãy gửi vào kênh hỗ trợ.
-
-6. Wanna deploy it yourself?\nHere's the source code: https://github.com/tgbot-collection/ytdlbot
+(link dạng item.taobao.com, tmall.com, tb.cn...)
+1. Đối với thành viên miễn phí: Cần tải lên Cookies Taobao cá nhân để có thể sử dụng. Cách lấy như sau:
+- Dùng trình duyệt Chrome/Edge cài đặt extension: https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm
+- Đăng nhập vào trang web Taobao.com, sau đó bấm biểu tượng Cookie-Editor và chọn Export > JSON. Sau đó mở Notepad dán nội dung json đã được copy và lưu vào file bất kì.txt.
+- Gửi file cho bot Taobao Media để cập nhật cookies cá nhân.
+2. Đối với thành viên trả phí và còn số lượt tải trả phí: không cần làm cũng được.
+Vì Taobao bắt xác minh tài khoản liên tục nên mình không có đủ tài khoản để duy trì dịch vụ, mong các bạn thông cảm. Nếu không biết làm có thể liên hệ @cpanel10x để được mình hỗ trợ và yêu cầu phải có máy tính.
     """
 
-    about = "Taobao Media Bot Ver 3.0.0 by @cpanel10x. \n\nPhát triển từ YouTube Downloader by @BennyThink.\n\nOpen source on GitHub: https://github.com/tgbot-collection/ytdlbot"
+    about = "Taobao Media Bot Ver 3.0.2 by @cpanel10x. \n\nPhát triển từ YouTube Downloader by @BennyThink.\n\nOpen source on GitHub: https://github.com/tgbot-collection/ytdlbot"
 
     buy = f"""
 **Terms:**
