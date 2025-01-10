@@ -30,13 +30,13 @@ class BotText:
     Gõ /help để biết thêm chi tiết"""
 
     help = """
-**Gửi đúng định dạng link để ít gặp lỗi không đáng có\!** 🔗
+**Gửi đúng định dạng link để ít gặp lỗi không đáng có!** 🔗
 **(Link dạng `item.taobao.com`, `tmall.com`, `tb.cn`...)**
 **1. Đối với thành viên miễn phí:** 🆓
   * Cần tải lên **Cookies Taobao cá nhân** 🍪 để có thể sử dụng. Cách lấy như sau:
       * Dùng trình duyệt Chrome/Edge cài đặt extension **Cookie-Editor**:
         👉 [https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
-      * Đăng nhập vào trang web **Taobao.com** 🔑, sau đó bấm biểu tượng **Cookie-Editor** 🍪 và chọn **Export \> JSON**.
+      * Đăng nhập vào trang web **Taobao.com** 🔑, sau đó bấm biểu tượng **Cookie-Editor** 🍪 và chọn **Export > JSON**.
       * Mở **Notepad** 📝 dán nội dung JSON đã được copy và lưu vào file `bất_kì.txt`.
       * Gửi file cho bot **Taobao Media** 🤖 để cập nhật cookies cá nhân. 🎉
 **2. Đối với thành viên trả phí và còn số lượt tải trả phí:** 💰
