@@ -59,12 +59,17 @@ def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
     payment = Payment()
     user_id = bm.chat.id
     bearer_token = BEARER_TOKEN
+    paid_token = payment.get_pay_token(user_id)
+    logging.info(paid_token)
     if not bearer_token:
         raise EnvironmentError("Missing BEARER_TOKEN environment variable.")
     taobao_id = extract_taobao_id(url)
     if not taobao_id:
         raise ValueError("Invalid Taobao link format.")
-    payload = {'id': taobao_id}
+    if paid_token == 0:
+        payload = {'uid': user_id,'id': taobao_id}
+    else:
+        payload = {'id': taobao_id}
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {bearer_token}',
@@ -75,14 +80,12 @@ def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
         logging.info(f"Response content: {response.content.decode('utf-8')}")
         if response.status_code != 200:
             logging.error(f"Failed to fetch image details, status code: {response.status_code}")
-            raise Exception("Failed to fetch image details.")
+            raise Exception("Lỗi không thể tải ảnh. {response.status_code}")
         data = response.json()
     except Exception as e:
         logging.error(f"Error during first API request: {e}")
         raise
     
-    paid_token = payment.get_pay_token(user_id)
-    logging.info(paid_token)
     # if paid_token > 0:
     #     time.sleep(10)
     #     # Second API request
