@@ -523,57 +523,58 @@ def upload_handler(client: Client, message: types.Message):
     logging.info(message.from_user)
     username = message.from_user.username
     chat_id = message.from_user.id
+
     if ENABLE_VIP:
         redis = Redis()
         payment = Payment()
         free, pay, reset = payment.get_token(chat_id)
-        logging.info(pay)
-        logging.info(free)
-        if (int(pay) <= 0) or (username != OWNER):
-            message.reply_text(f"Tính năng chỉ dành cho VIP Member", quote=True)
-            return
-        else:
-            logging.info(f"Admin {username} with id {chat_id} Upload file")
-            client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-            redis.user_count(chat_id)
-            # Process document
-            file = message.document
-            try:
-                get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
-                response = requests.get(get_file_url)
-                if response.status_code == 200:
-                    file_info = response.json()
-                    logging.info(f"Result from simulating getFile: {file_info}")
-                    # Rất tiếc, file_path sẽ KHÔNG có trong kết quả
-                    if "result" in file_info and "file_path" in file_info["result"] and file_info["result"]["file_path"].endswith(".txt"):
-                        file_path = file_info["result"]["file_path"]
-                        cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
-                        payload = {'url': cdn_link, 'userId': chat_id}
-                        headers = {
-                            'Content-Type': 'application/json',
-                            'Authorization': f'Bearer {BEARER_TOKEN}',
-                        }
-                        try:
-                            response = requests.post(f"https://{API_TAOBAO}/update_cookies", headers=headers, data=json.dumps(payload))
-                            logging.info(f"Response from first API: {response}")
-                            logging.info(f"Response content: {response.content.decode('utf-8')}")
-                            logging.info(cdn_link)
-                            redis.update_metrics("upload_cookies_request")
-                            message.reply_text(f"Cập nhật cookies thành công", quote=True)
-                            if response.status_code != 200:
-                                logging.error(f"Failed to fetch image details, status code: {response.status_code}")
-                                raise Exception("Failed to fetch image details.")
-                        except Exception as e:
-                            logging.error(f"Error during first API request: {e}")
-                            raise
-                    else:
-                        message.reply_text("Có lỗi xảy ra hoặc file bạn gửi không phải là file .txt.", quote=True)
-                else:
-                    message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
-                return
-            except Exception as e:
-                message.reply_text(f"Error getting file info: {e}", quote=True)
+        logging.info(f"Payment info: Pay={pay}, Free={free}")
 
+        # Loại bỏ kiểm tra username != OWNER
+        # Bất kỳ ai cũng có thể sử dụng nếu ENABLE_VIP là True, kể cả không phải là VIP
+        logging.info(f"User {username} with id {chat_id} Upload file")
+        client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+        redis.user_count(chat_id)
+
+        # Process document
+        file = message.document
+        try:
+            get_file_url = f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file.file_id}"
+            response = requests.get(get_file_url)
+            if response.status_code == 200:
+                file_info = response.json()
+                logging.info(f"Result from simulating getFile: {file_info}")
+
+                if "result" in file_info and "file_path" in file_info["result"] and file_info["result"]["file_path"].endswith(".txt") and file.file_size < 100 * 1024:
+                    file_path = file_info["result"]["file_path"]
+                    cdn_link = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
+                    payload = {'url': cdn_link, 'userId': chat_id}
+                    headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': f'Bearer {BEARER_TOKEN}',
+                    }
+                    try:
+                        response = requests.post(f"https://{API_TAOBAO}/update_cookies", headers=headers, data=json.dumps(payload))
+                        logging.info(f"Response from first API: {response}")
+                        logging.info(f"Response content: {response.content.decode('utf-8')}")
+                        logging.info(cdn_link)
+                        redis.update_metrics("upload_cookies_request")
+                        message.reply_text(f"Cập nhật cookies thành công", quote=True)
+                        if response.status_code != 200:
+                            logging.error(f"Lỗi cập nhật cookies, status code: {response.status_code}")
+                            raise Exception("Lỗi kết nối API cookies. Vui lòng thông báo cho @cpanel10x")
+                    except Exception as e:
+                        logging.error(f"Lỗi cập nhật cookies: {e}")
+                        raise
+                else:
+                    message.reply_text("Có lỗi xảy ra hoặc file bạn gửi không phải là file cookies hợp lệ .txt.", quote=True)
+            else:
+                message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
+            return
+        except Exception as e:
+            message.reply_text(f"Error getting file info: {e}", quote=True)
+    else:
+        message.reply_text(f"Tính năng đang tắt", quote=True)
 
 
 @app.on_message(filters.incoming & (filters.text))
