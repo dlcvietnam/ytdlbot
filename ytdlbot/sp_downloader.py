@@ -92,8 +92,16 @@ def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
 
         # Check for API error even if status code is 200
         if "error" in data:
-            logging.error(f"API returned an error: {data['error']}")
-            raise Exception(f"Lỗi từ API: {data['error']}")
+            error_message = data['error']
+            if error_message == 'COOKIES_ERROR':
+                logging.error("API returned a cookies error.")
+                if paid_token == 0:
+                    raise Exception("Lỗi chưa cập nhật Cookies hoặc Cookies cũ đã hết hạn - Đối với thành viên miễn phí cần tải cookies cá nhân lên để sử dụng tính năng. Gõ /help để xem hướng dẫn!")
+                else:
+                    raise Exception("Lỗi cookies. Vui lòng liên hệ @cpanel10x")
+            else:
+                logging.error(f"API returned an error: {error_message}")
+                raise Exception(f"Lỗi từ API: {error_message}")
 
     except Exception as e:
         logging.error(f"Error during first API request: {e}")
