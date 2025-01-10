@@ -56,105 +56,98 @@ def extract_taobao_id(url: str) -> str:
 
 def taobao(url: str, tempdir: str, bm, **kwargs) -> dict:
     """Download media from Taobao."""
-    payment = Payment()
+    payment = Payment()  # Assuming Payment class is defined elsewhere
     user_id = bm.chat.id
     bearer_token = BEARER_TOKEN
     paid_token = payment.get_pay_token(user_id)
-    logging.info(paid_token)
+    logging.info(f"Paid token status: {paid_token}")
+
     if not bearer_token:
         raise EnvironmentError("Missing BEARER_TOKEN environment variable.")
-    taobao_id = extract_taobao_id(url)
+
+    taobao_id = extract_taobao_id(url)  # Assuming extract_taobao_id is defined elsewhere
     if not taobao_id:
         raise ValueError("Invalid Taobao link format.")
+
     if paid_token == 0:
-        payload = {'uid': user_id,'id': taobao_id}
+        payload = {'uid': user_id, 'id': taobao_id}
     else:
         payload = {'id': taobao_id}
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {bearer_token}',
     }
+
     try:
         response = requests.post(f"https://{API_TAOBAO}/get_tb_details", headers=headers, data=json.dumps(payload))
         logging.info(f"Response from first API: {response}")
         logging.info(f"Response content: {response.content.decode('utf-8')}")
+
         if response.status_code != 200:
             logging.error(f"Failed to fetch image details, status code: {response.status_code}")
-            raise Exception("Lỗi không thể tải ảnh. {response.status_code}")
+            raise Exception(f"Lỗi không thể tải ảnh. Status code: {response.status_code}")
+
         data = response.json()
+
+        # Check for API error even if status code is 200
+        if "error" in data:
+            logging.error(f"API returned an error: {data['error']}")
+            raise Exception(f"Lỗi từ API: {data['error']}")
+
     except Exception as e:
         logging.error(f"Error during first API request: {e}")
         raise
-    
-    # if paid_token > 0:
-    #     time.sleep(10)
-    #     # Second API request
-    #     try:
-    #         response2 = requests.post(API_TAOBAO2, headers=headers, data=json.dumps(payload))
-    #         if response2.status_code != 200:
-    #             raise Exception("Failed to fetch image desc.")
-    #         data2 = response2.json()
-    #         data['descImages'] = data2.get('descImages', [])
-    #         data['descVideos'] = data2.get('descVideos', [])
-    #     except Exception as e:
-    #         logging.error(f"Error during second API request: {e}")
-    #         raise
-    # keys = ['video', 'baseImages', 'skuImages', 'descImages', 'descVideos', 'ratedImages']
+
     if paid_token == 0:
         keys = ['video', 'baseImages']
     else:
         keys = ['video', 'baseImages', 'skuImages', 'rateImages', 'rateVideos', 'descImages']
+
     video_paths = {key: [] for key in keys}
-    # Clean and deduplicate URLs
-    # Header with User-Agent
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+
     for key in keys:
         if key in data:
             for img_info in data[key]:
                 img_url = img_info.get('url')
                 if not img_url:
                     continue
-                
+
                 try:
                     req = requests.get(img_url, headers=headers, stream=True)
-                
-                    # Check HTTP status code
+
                     if req.status_code != 200:
                         logging.error(f"Error downloading URL: {img_url} with status code: {req.status_code}")
                         continue
-                
-                    # Check content type
+
                     content_type = req.headers.get('Content-Type')
                     if 'image' not in content_type and 'video' not in content_type:
                         logging.error(f"Content is not an image or video from URL: {img_url}")
                         continue
-                
-                    # Extract filename from URL without query parameters
-                    parsed_url = urlparse(img_url)
-                    filename = pathlib.Path(parsed_url.path).name  # Only get the file name from the path
 
-                    # Create file path to save
+                    parsed_url = urlparse(img_url)
+                    filename = pathlib.Path(parsed_url.path).name
                     save_path = pathlib.Path(tempdir, filename)
                     logging.info(f"Saving media to: {save_path}")
-                
-                    # Create directory if it doesn't exist
+
                     os.makedirs(tempdir, exist_ok=True)
-                
+
                     with open(save_path, "wb") as fp:
                         for chunk in req.iter_content(chunk_size=8192):
-                            if chunk:  # Check if chunk is not empty
+                            if chunk:
                                 fp.write(chunk)
-                
-                    # Check file size after download
+
                     if os.path.getsize(save_path) <= 10000:
                         logging.error(f"File too small or invalid: {save_path}")
+                        os.remove(save_path) # Delete the invalid file
                         continue
-            
-                    # Update img_info with the local file path
+
                     img_info['url'] = str(save_path)
                     video_paths[key].append(img_info)
-            
+
                 except Exception as e:
                     logging.error(f"Error downloading or writing file: {e}")
 
