@@ -250,7 +250,7 @@ def spdl_download_entrance(client: Client, bot_msg: types.Message, url: str, mod
     except Exception as e:
         logging.error("Failed to download %s, error: %s", url, e)
         error_msg = "Sorry, Something went wrong."
-        bot_msg.edit_text(f"Download failed!❌\n\n`{error_msg}", disable_web_page_preview=True)
+        bot_msg.edit_text(f"Download failed!❌\n\n`{e}", disable_web_page_preview=True)
 
 
 def cn_download_entrance(client: Client, bot_msg: types.Message, url: str, mode=None):
@@ -282,7 +282,7 @@ def cn_download_entrance(client: Client, bot_msg: types.Message, url: str, mode=
     except Exception as e:
         logging.error("Failed to download %s, error: %s", url, e)
         error_msg = "Sorry, Something went wrong."
-        bot_msg.edit_text(f"Download failed!❌\n\n`{error_msg}", disable_web_page_preview=True)
+        bot_msg.edit_text(f"Download failed!❌\n\n`{e}", disable_web_page_preview=True)
         
 
 def audio_entrance(client: Client, bot_msg: types.Message):
