@@ -562,7 +562,7 @@ def upload_handler(client: Client, message: types.Message):
                         message.reply_text(f"Cập nhật cookies thành công", quote=True)
                         if response.status_code != 200:
                             logging.error(f"Lỗi cập nhật cookies, status code: {response.status_code}")
-                            raise Exception("Lỗi kết nối API cookies. Vui lòng thông báo cho @cpanel10x")
+                            raise Exception("Lỗi kết nối API. Vui lòng thử lại 1 lần nữa hoặc thông báo cho @cpanel10x")
                     except Exception as e:
                         logging.error(f"Lỗi cập nhật cookies: {e}")
                         raise
@@ -572,7 +572,7 @@ def upload_handler(client: Client, message: types.Message):
                 message.reply_text(f"Error simulating getFile: {response.status_code}", quote=True)
             return
         except Exception as e:
-            message.reply_text(f"Error getting file info: {e}", quote=True)
+            message.reply_text(f"Lỗi cập nhật Cookies: {e}", quote=True)
     else:
         message.reply_text(f"Tính năng đang tắt", quote=True)
 
