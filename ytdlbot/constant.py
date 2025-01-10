@@ -30,14 +30,20 @@ class BotText:
     Gõ /help để biết thêm chi tiết"""
 
     help = """
-Gửi đúng định dạng link để ít gặp lỗi không đáng có!
-(link dạng item.taobao.com, tmall.com, tb.cn...)
-1. Đối với thành viên miễn phí: Cần tải lên Cookies Taobao cá nhân để có thể sử dụng. Cách lấy như sau:
-- Dùng trình duyệt Chrome/Edge cài đặt extension: https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm
-- Đăng nhập vào trang web Taobao.com, sau đó bấm biểu tượng Cookie-Editor và chọn Export > JSON. Sau đó mở Notepad dán nội dung json đã được copy và lưu vào file bất kì.txt.
-- Gửi file cho bot Taobao Media để cập nhật cookies cá nhân.
-2. Đối với thành viên trả phí và còn số lượt tải trả phí: không cần làm cũng được.
-Vì Taobao bắt xác minh tài khoản liên tục nên mình không có đủ tài khoản để duy trì dịch vụ, mong các bạn thông cảm. Nếu không biết làm có thể liên hệ @cpanel10x để được mình hỗ trợ và yêu cầu phải có máy tính.
+**Gửi đúng định dạng link để ít gặp lỗi không đáng có\!** 🔗
+**(Link dạng `item.taobao.com`, `tmall.com`, `tb.cn`...)**
+**1. Đối với thành viên miễn phí:** 🆓
+  * Cần tải lên **Cookies Taobao cá nhân** 🍪 để có thể sử dụng. Cách lấy như sau:
+      * Dùng trình duyệt Chrome/Edge cài đặt extension **Cookie-Editor**:
+        👉 [https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
+      * Đăng nhập vào trang web **Taobao.com** 🔑, sau đó bấm biểu tượng **Cookie-Editor** 🍪 và chọn **Export \> JSON**.
+      * Mở **Notepad** 📝 dán nội dung JSON đã được copy và lưu vào file `bất_kì.txt`.
+      * Gửi file cho bot **Taobao Media** 🤖 để cập nhật cookies cá nhân. 🎉
+**2. Đối với thành viên trả phí và còn số lượt tải trả phí:** 💰
+  * **Không cần làm cũng được**. 😎
+**Lưu ý quan trọng:** ❗
+  * Vì Taobao bắt xác minh tài khoản liên tục 🔐, nên mình không có đủ tài khoản để duy trì dịch vụ. Mong các bạn thông cảm. 🙏
+  * Nếu không biết làm, có thể liên hệ **@cpanel10x** 🙋‍♂️ để được mình hỗ trợ, **yêu cầu phải có máy tính** 💻.
     """
 
     about = "Taobao Media Bot Ver 3.0.2 by @cpanel10x. \n\nPhát triển từ YouTube Downloader by @BennyThink.\n\nOpen source on GitHub: https://github.com/tgbot-collection/ytdlbot"
