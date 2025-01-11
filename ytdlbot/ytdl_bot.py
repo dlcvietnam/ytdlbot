@@ -859,34 +859,41 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
 
 
         # 3. Gửi mã QR code cho người dùng
-        client.send_photo(chat_id, image_bytes, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
+        sent_message = client.send_photo(chat_id, photo=image_bytes, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
+        qr_message_id = sent_message.id  # Lưu lại message_id của tin nhắn chứa ảnh QR
 
         # 4. Theo dõi trạng thái thanh toán
         start_time = time.time()
         while time.time() - start_time < TRANSACTION_TIMEOUT:
             time.sleep(CHECK_TRANSACTION_INTERVAL)
 
-            status, _, _, code, description = get_transaction_status(codebank)
+            status, _, _, codebank, description = get_transaction_status(transaction_id)
 
             if status == 'completed':
-                client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}!")
-                msg = payment.admin_add_token(chat_id, amount / 1000)
-                client.send_message(msg)
-                # message.reply_text(msg, quote=True)
+                # Sửa caption của tin nhắn chứa ảnh QR
+                msg = payment.admin_add_token(chat_id, price / 1000)
+                client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"✅ Thanh toán thành công cho giao dịch {transaction_id}!\nSố tiền: {price} VND \n{msg}")
                 return
             elif status == 'expired':
-                client.send_message(chat_id, f"Giao dịch {transaction_id} đã hết hạn.")
+                # Sửa caption của tin nhắn chứa ảnh QR
+                client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"❌ Giao dịch {transaction_id} đã hết hạn.")
                 return
             elif status == 'received_after_expired':
-                client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}! Nhưng thời gian chờ đã hết hạn")
+                # Sửa caption của tin nhắn chứa ảnh QR
+                client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"⚠️ Thanh toán thành công cho giao dịch {transaction_id}! Nhưng thời gian chờ đã hết hạn")
                 return
             elif status == 'pending':
+                # Cập nhật caption để hiển thị thời gian chờ còn lại (tùy chọn)
+                remaining_time = int(TRANSACTION_TIMEOUT - (time.time() - start_time))
+                client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\n⏳ Còn lại: {remaining_time // 60} phút {remaining_time % 60} giây")
                 continue
             else:
-                client.send_message(chat_id, f"Giao dịch {transaction_id} không thành công. Vui lòng thử lại sau. ({description})")
+                # Sửa caption của tin nhắn chứa ảnh QR
+                client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"❌ Giao dịch {transaction_id} không thành công. Vui lòng thử lại sau. ({description})")
                 return
 
-        client.send_message(chat_id, f"Đã hết thời gian chờ thanh toán cho giao dịch {transaction_id}.")
+        # Hết thời gian chờ
+        client.edit_message_caption(chat_id=chat_id, message_id=qr_message_id, caption=f"❌ Đã hết thời gian chờ thanh toán cho giao dịch {transaction_id}.")
 
     except requests.exceptions.RequestException as e:
         logging.info(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
