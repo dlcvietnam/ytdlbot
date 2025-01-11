@@ -362,15 +362,15 @@ def buy_handler(client: Client, message: types.Message):
     # currency USD
     token_count = message.text.replace("/buy", "").strip()
     if token_count.isdigit():
-        price = int(int(token_count) / TOKEN_PRICE * 100)
+        price = int(int(token_count) * TOKEN_PRICE)
     else:
-        price = 100
+        price = 20000
 
     markup = types.InlineKeyboardMarkup(
         [
             [
                 types.InlineKeyboardButton("Quét mã QR", callback_data=f"bot-payments-{price}"),
-                types.InlineKeyboardButton("TRON(TRX)", callback_data="tron-trx"),
+                # types.InlineKeyboardButton("TRON(TRX)", callback_data="tron-trx"),
             ],
         ]
     )
