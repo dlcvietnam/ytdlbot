@@ -18,6 +18,7 @@ import tempfile
 import time
 import traceback
 import requests
+import base64
 
 from io import BytesIO
 from typing import Any
@@ -829,56 +830,67 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
     """
     try:
         # 1. Tạo mã QR code
-        headers = {'Authorization': f'Bearer {BEARER_TOKEN}'}  # Thêm Authorization header nếu cần
+        headers = {'Authorization': f'Bearer {API_KEY}'}
         payload = {
             'transaction_id': transaction_id,
             'amount': str(price)
         }
         response = requests.post(f"{API_QRPAY}/create_transaction", json=payload, headers=headers)
-        response.raise_for_status()  # Ném lỗi nếu request không thành công
+        response.raise_for_status()
 
-        qr_code_url = None # tạm thời để None, vì API không trả về url mà trả về file
-        qr_code_image = response.content
+        # 2. Kiểm tra phản hồi và lấy dữ liệu ảnh
+        if response.headers['Content-Type'] == 'image/svg+xml':
+            image_bytes = BytesIO(response.content)
+        elif response.headers['Content-Type'] == 'application/json':
+            try:
+                response_json = response.json()
+                qr_code_data = response_json.get('qr_code_data')
+                if qr_code_data:
+                    image_bytes = BytesIO(base64.b64decode(qr_code_data))
+                else:
+                    raise ValueError("Không tìm thấy dữ liệu QR code trong phản hồi JSON.")
+            except (json.JSONDecodeError, KeyError):
+                raise ValueError("Phản hồi API không phải là JSON hợp lệ hoặc thiếu dữ liệu cần thiết.")
+        else:
+            raise ValueError(f"Loại nội dung phản hồi không được hỗ trợ: {response.headers['Content-Type']}")
 
-        # 2. Gửi mã QR code cho người dùng
-        client.send_photo(chat_id, photo=qr_code_image, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
 
-        # 3. Theo dõi trạng thái thanh toán
+        # 3. Gửi mã QR code cho người dùng
+        client.send_photo(chat_id, photo=image_bytes, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
+
+        # 4. Theo dõi trạng thái thanh toán
         start_time = time.time()
         while time.time() - start_time < TRANSACTION_TIMEOUT:
             time.sleep(CHECK_TRANSACTION_INTERVAL)
-            
-            # Kiểm tra trạng thái giao dịch
-            status, _, _, _, description = get_transaction_status(transaction_id)
+
+            status, _, _, code, description = get_transaction_status(transaction_id)
 
             if status == 'completed':
-                # Thanh toán thành công
                 client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}!")
-                msg = payment.admin_add_token(chat_id, price)
-                client.send_message(msg)
+                addvip(chat_id, price)
                 return
             elif status == 'expired':
                 client.send_message(chat_id, f"Giao dịch {transaction_id} đã hết hạn.")
                 return
             elif status == 'received_after_expired':
-                # Thanh toan thành công nhưng bị trễ hạn
                 client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}! Nhưng thời gian chờ đã hết hạn")
                 return
             elif status == 'pending':
-                # Đang chờ xử lý
                 continue
             else:
-                client.send_message(chat_id, f"Giao dịch {transaction_id} không thành công. Vui lòng thử lại sau.")
+                client.send_message(chat_id, f"Giao dịch {transaction_id} không thành công. Vui lòng thử lại sau. ({description})")
                 return
 
-        # Hết thời gian chờ
         client.send_message(chat_id, f"Đã hết thời gian chờ thanh toán cho giao dịch {transaction_id}.")
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
-        client.send_message(chat_id, "Có lỗi xảy ra khi tạo mã QR hoặc kiểm tra giao dịch. Vui lòng thử lại sau.")
+        logger.error(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
+        client.send_message(chat_id, f"Có lỗi xảy ra khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
+    except ValueError as e:
+        logger.error(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
+        client.send_message(chat_id, f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
     except Exception as e:
-        logging.error(f"Lỗi không xác định: {e}")
+        logger.error(f"Lỗi không xác định: {e}")
         client.send_message(chat_id, "Có lỗi không xác định xảy ra. Vui lòng liên hệ admin.")
 
 
