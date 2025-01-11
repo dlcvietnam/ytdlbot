@@ -924,10 +924,10 @@ def get_transaction_status(transaction_id):
         return status, amount, timestamp, code, description
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Lỗi khi kiểm tra trạng thái giao dịch: {e}")
+        logging.error(f"Lỗi khi kiểm tra trạng thái giao dịch: {e}")
         return None, None, None, None, None
     except (ValueError, KeyError) as e:
-        logger.error(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
+        logging.error(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
         return None, None, None, None, None
 
 
