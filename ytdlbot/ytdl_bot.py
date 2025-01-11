@@ -884,13 +884,13 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
         client.send_message(chat_id, f"Đã hết thời gian chờ thanh toán cho giao dịch {transaction_id}.")
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
+        logging.info(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
         client.send_message(chat_id, f"Có lỗi xảy ra khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
     except ValueError as e:
-        logger.error(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
+        logging.info(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
         client.send_message(chat_id, f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
     except Exception as e:
-        logger.error(f"Lỗi không xác định: {e}")
+        logging.info(f"Lỗi không xác định: {e}")
         client.send_message(chat_id, "Có lỗi không xác định xảy ra. Vui lòng liên hệ admin.")
 
 
