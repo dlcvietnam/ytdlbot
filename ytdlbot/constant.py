@@ -44,41 +44,23 @@ class BotText:
 **Lưu ý quan trọng:** ❗
   * Vì Taobao bắt xác minh tài khoản liên tục 🔐, nên mình không có đủ tài khoản để duy trì dịch vụ. Mong các bạn thông cảm. 🙏
   * Nếu không biết làm, có thể liên hệ **@cpanel10x** 🙋‍♂️ để được mình hỗ trợ, **yêu cầu phải có máy tính** 💻.
+  * Gõ /buy để mua lượt tải VIP với giá **20k = 20 lượt tải** 🙋‍♂️.
     """
 
     about = "Taobao Media Bot Ver 3.0.2 by @cpanel10x. \n\nPhát triển từ YouTube Downloader by @BennyThink.\n\nOpen source on GitHub: https://github.com/tgbot-collection/ytdlbot"
 
     buy = f"""
-**Terms:**
-1. You can use this bot to download video for {FREE_DOWNLOAD} times within a 24-hour period.
+**Lưu ý:**
+1. Bạn có {FREE_DOWNLOAD} lượt tải miễn phí mỗi ngày nếu có **Upload Cookies** theo hướng dẫn /help.
 
-2. You can buy additional download tokens, valid permanently.
+2. Lượt tải mua sẽ có hạn sử dụng 30 ngày.
 
-3. Refunds are possible, contact me if you need that @cpanel10x
+3. Không hỗ trợ hoàn tiền.
 
-4. Download for paid user will be automatically changed to Local mode to avoid queuing.
+**Giá mua:** 20.000 VNĐ == {TOKEN_PRICE} tokens
 
-5. Paid user can download files larger than 2GB.
-
-**Price:**
-valid permanently
-1. 1 USD == {TOKEN_PRICE} tokens
-2. 20.000 VNĐ == {TOKEN_PRICE} tokens
-3. 10 TRX == {TOKEN_PRICE} tokens
-
-**Payment options:**
-Pay any amount you want. For example you can send 20 TRX for {TOKEN_PRICE * 2} tokens.
-1. AFDIAN(AliPay, WeChat Pay and PayPal): {AFD_LINK}
-2. Buy me a coffee: {COFFEE_LINK}
-3. Telegram Bot Payment(Stripe), please click Bot Payment button.
-4. TRON(TRX), please click TRON(TRX) button.
-
-**After payment:**
-1. Afdian: attach order number with /redeem command (e.g., `/redeem 123456`).
-2. Buy Me a Coffee: attach email with /redeem command (e.g., `/redeem 123@x.com`). **Use different email each time.**
-3. Tron(TRX): automatically activated within 60s. Check /start to see your balance.
-
-Want to buy more token with Telegram payment? Let's say 100? Here you go! `/buy 123`
+**Phương thức thanh toán:** Quét mã QR tự động
+Bấm Quét Mã QR bên dưới để nhận mã.`
     """
 
     private = "This bot is for private use"
