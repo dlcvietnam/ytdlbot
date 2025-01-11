@@ -360,11 +360,11 @@ def buy_handler(client: Client, message: types.Message):
     chat_id = message.chat.id
     client.send_chat_action(chat_id, enums.ChatAction.TYPING)
     # currency USD
-    token_count = message.text.replace("/buy", "").strip()
-    if token_count.isdigit():
-        price = int(int(token_count) * TOKEN_PRICE)
-    else:
-        price = 20000
+    # token_count = message.text.replace("/buy", "").strip()
+    # if token_count.isdigit():
+    #     price = int(int(token_count) * 1000)
+    # else:
+    price = 20000
 
     markup = types.InlineKeyboardMarkup(
         [
