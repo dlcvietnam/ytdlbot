@@ -845,6 +845,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
             try:
                 response_json = response.json()
                 qr_code_data = response_json.get('qr_code_data')
+                codebank = response_json.get('code')
                 logging.info(qr_code_data)
                 if qr_code_data:
                     image_bytes = BytesIO(base64.b64decode(qr_code_data))
@@ -864,7 +865,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
         while time.time() - start_time < TRANSACTION_TIMEOUT:
             time.sleep(CHECK_TRANSACTION_INTERVAL)
 
-            status, _, _, code, description = get_transaction_status(transaction_id)
+            status, _, _, code, description = get_transaction_status(codebank)
 
             if status == 'completed':
                 client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}!")
