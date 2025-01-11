@@ -928,7 +928,7 @@ def get_transaction_status(codebank):
     """
     try:
         headers = {'Authorization': f'Bearer {BEARER_TOKEN}'}
-        response = requests.get(f"{API_QRPAY}/check_transaction_status?code={transaction_id}", headers=headers)
+        response = requests.get(f"{API_QRPAY}/check_transaction_status?code={codebank}", headers=headers)
         response.raise_for_status()
 
         data = response.json()
