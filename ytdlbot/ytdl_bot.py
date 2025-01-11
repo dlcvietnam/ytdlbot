@@ -77,7 +77,8 @@ logging.getLogger("apscheduler.executors.default").propagate = False
 
 app = create_app("main")
 channel = Channel()
-
+CHECK_TRANSACTION_INTERVAL = 10  # Thời gian chờ giữa các lần kiểm tra giao dịch (giây)
+TRANSACTION_TIMEOUT = 600  # Thời gian chờ tối đa cho giao dịch (giây)
 
 def private_use(func):
     def wrapper(client: Client, message: types.Message):
