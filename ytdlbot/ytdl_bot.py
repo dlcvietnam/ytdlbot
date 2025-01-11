@@ -894,6 +894,42 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
         logging.info(f"Lỗi không xác định: {e}")
         client.send_message(chat_id, "Có lỗi không xác định xảy ra. Vui lòng liên hệ admin.")
 
+def get_transaction_status(transaction_id):
+    """
+    Lấy trạng thái giao dịch dựa trên transaction_id.
+
+    Args:
+        transaction_id: ID giao dịch.
+
+    Returns:
+        Tuple: (status, amount, timestamp, code, description)
+               - status: Trạng thái giao dịch (pending, completed, expired, received_after_expired, ...).
+               - amount: Số tiền.
+               - timestamp: Timestamp của giao dịch.
+               - code: mã code của giao dịch.
+               - description: Mô tả giao dịch.
+    """
+    try:
+        headers = {'Authorization': f'Bearer {API_KEY}'}
+        response = requests.get(f"{API_QRPAY}/check_transaction_status?code={transaction_id}", headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+        status = data.get('status')
+        amount = data.get('amount')
+        timestamp = data.get('timestamp')
+        code = data.get('code')
+        description = data.get('description')
+
+        return status, amount, timestamp, code, description
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Lỗi khi kiểm tra trạng thái giao dịch: {e}")
+        return None, None, None, None, None
+    except (ValueError, KeyError) as e:
+        logger.error(f"Lỗi xử lý phản hồi từ API QRPAY: {e}")
+        return None, None, None, None, None
+
 
 def trx_notify(_, **kwargs):
     user_id = kwargs.get("user_id")
