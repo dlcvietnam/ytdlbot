@@ -828,6 +828,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
         price: Số tiền cần thanh toán.
         transaction_id: ID giao dịch duy nhất.
     """
+    payment = Payment()
     try:
         # 1. Tạo mã QR code
         headers = {'Authorization': f'Bearer {BEARER_TOKEN}'}
@@ -869,7 +870,9 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
 
             if status == 'completed':
                 client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}!")
-                addvip(chat_id, price)
+                msg = payment.admin_add_token(chat_id, amount / 1000)
+                client.send_message(msg)
+                # message.reply_text(msg, quote=True)
                 return
             elif status == 'expired':
                 client.send_message(chat_id, f"Giao dịch {transaction_id} đã hết hạn.")
