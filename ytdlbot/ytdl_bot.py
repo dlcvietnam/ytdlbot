@@ -53,7 +53,8 @@ from config import (
     URL_ARRAY,
     TOKEN,
     API_TAOBAO,
-    BEARER_TOKEN
+    BEARER_TOKEN,
+    API_QRPAY
 )
 from constant import BotText
 from database import InfluxDB, MySQL, Redis
@@ -366,7 +367,7 @@ def buy_handler(client: Client, message: types.Message):
     markup = types.InlineKeyboardMarkup(
         [
             [
-                types.InlineKeyboardButton("Bot Payments", callback_data=f"bot-payments-{price}"),
+                types.InlineKeyboardButton("Quét mã QR", callback_data=f"bot-payments-{price}"),
                 types.InlineKeyboardButton("TRON(TRX)", callback_data="tron-trx"),
             ],
         ]
@@ -404,22 +405,19 @@ def premium_click(client: Client, callback_query: types.CallbackQuery):
 
 @app.on_callback_query(filters.regex(r"bot-payments-.*"))
 def bot_payment_btn_calback(client: Client, callback_query: types.CallbackQuery):
-    callback_query.answer("Generating invoice...")
+    callback_query.answer("Vui lòng quét mã QR...")
     chat_id = callback_query.message.chat.id
     client.send_chat_action(chat_id, enums.ChatAction.TYPING)
 
     data = callback_query.data
     price = int(data.split("-")[-1])
-    payload = f"{chat_id}-buy"
-    invoice = generate_invoice(price, f"Buy {TOKEN_PRICE} download tokens", "Pay by card", payload)
-    app.invoke(
-        functions.messages.SendMedia(
-            peer=(raw_types.InputPeerUser(user_id=chat_id, access_hash=0)),
-            media=invoice,
-            random_id=app.rnd_id(),
-            message="Buy more download token",
-        )
-    )
+    data = callback_query.data
+    price = int(data.split("-")[-1])
+
+    # Tạo transaction_id duy nhất (có thể sử dụng UUID)
+    transaction_id = f"BOT-{chat_id}-{int(time.time())}"
+    # Gọi hàm tạo QR code và theo dõi thanh toán
+    generate_qr_code_and_track_payment(client, chat_id, price, transaction_id)
 
 
 @app.on_message(filters.command(["redeem"]))
@@ -817,6 +815,70 @@ def raw_update(client: Client, update, users, chats):
         amount = action.total_amount / 100
         payment.add_pay_user([uid, amount, action.charge.provider_charge_id, 0, amount * TOKEN_PRICE])
         client.send_message(uid, f"Thank you {uid}. Payment received: {amount} {action.currency}")
+
+def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int, transaction_id: str):
+    """
+    Tạo mã QR, gửi cho người dùng và theo dõi trạng thái thanh toán.
+
+    Args:
+        client: Pyrogram Client instance.
+        chat_id: ID của chat.
+        price: Số tiền cần thanh toán.
+        transaction_id: ID giao dịch duy nhất.
+    """
+    try:
+        # 1. Tạo mã QR code
+        headers = {'Authorization': f'Bearer {API_KEY}'}  # Thêm Authorization header nếu cần
+        payload = {
+            'transaction_id': transaction_id,
+            'amount': str(price)
+        }
+        response = requests.post(f"{API_QRPAY}/create_transaction", json=payload, headers=headers)
+        response.raise_for_status()  # Ném lỗi nếu request không thành công
+
+        qr_code_url = None # tạm thời để None, vì API không trả về url mà trả về file
+        qr_code_image = response.content
+
+        # 2. Gửi mã QR code cho người dùng
+        client.send_photo(chat_id, photo=qr_code_image, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
+
+        # 3. Theo dõi trạng thái thanh toán
+        start_time = time.time()
+        while time.time() - start_time < TRANSACTION_TIMEOUT:
+            time.sleep(CHECK_TRANSACTION_INTERVAL)
+            
+            # Kiểm tra trạng thái giao dịch
+            status, _, _, _, description = get_transaction_status(transaction_id)
+
+            if status == 'completed':
+                # Thanh toán thành công
+                client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}!")
+                msg = payment.admin_add_token(chat_id, price)
+                client.send_message(msg)
+                return
+            elif status == 'expired':
+                client.send_message(chat_id, f"Giao dịch {transaction_id} đã hết hạn.")
+                return
+            elif status == 'received_after_expired':
+                # Thanh toan thành công nhưng bị trễ hạn
+                client.send_message(chat_id, f"Thanh toán thành công cho giao dịch {transaction_id}! Nhưng thời gian chờ đã hết hạn")
+                return
+            elif status == 'pending':
+                # Đang chờ xử lý
+                continue
+            else:
+                client.send_message(chat_id, f"Giao dịch {transaction_id} không thành công. Vui lòng thử lại sau.")
+                return
+
+        # Hết thời gian chờ
+        client.send_message(chat_id, f"Đã hết thời gian chờ thanh toán cho giao dịch {transaction_id}.")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Lỗi khi tạo mã QR hoặc kiểm tra giao dịch: {e}")
+        client.send_message(chat_id, "Có lỗi xảy ra khi tạo mã QR hoặc kiểm tra giao dịch. Vui lòng thử lại sau.")
+    except Exception as e:
+        logger.error(f"Lỗi không xác định: {e}")
+        client.send_message(chat_id, "Có lỗi không xác định xảy ra. Vui lòng liên hệ admin.")
 
 
 def trx_notify(_, **kwargs):
