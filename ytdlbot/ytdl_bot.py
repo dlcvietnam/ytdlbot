@@ -857,7 +857,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
 
 
         # 3. Gửi mã QR code cho người dùng
-        client.send_photo(chat_id, photo=image_bytes, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
+        client.send_photo(chat_id, image_bytes, caption=f"Vui lòng quét mã QR để thanh toán {price} VND.\nMã giao dịch: {transaction_id}\nHết hạn sau: {TRANSACTION_TIMEOUT // 60} phút")
 
         # 4. Theo dõi trạng thái thanh toán
         start_time = time.time()
