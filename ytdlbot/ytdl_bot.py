@@ -845,6 +845,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
             try:
                 response_json = response.json()
                 qr_code_data = response_json.get('qr_code_data')
+                logging.info(qr_code_data)
                 if qr_code_data:
                     image_bytes = BytesIO(base64.b64decode(qr_code_data))
                 else:
