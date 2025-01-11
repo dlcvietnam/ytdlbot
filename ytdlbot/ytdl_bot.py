@@ -910,7 +910,7 @@ def get_transaction_status(transaction_id):
                - description: Mô tả giao dịch.
     """
     try:
-        headers = {'Authorization': f'Bearer {API_KEY}'}
+        headers = {'Authorization': f'Bearer {BEARER_TOKEN}'}
         response = requests.get(f"{API_QRPAY}/check_transaction_status?code={transaction_id}", headers=headers)
         response.raise_for_status()
 
