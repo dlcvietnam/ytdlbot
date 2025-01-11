@@ -873,7 +873,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
             status, amount, _, _, description = get_transaction_status(codebank)
             if status == 'completed':
                 # Sửa caption của tin nhắn chứa ảnh QR
-                msg = payment.admin_add_token(chat_id, price / 1000)
+                msg = payment.admin_add_token(chat_id, price / 20 / 1000)
                 client.delete_messages(chat_id=chat_id, message_ids=qr_message_id)
                 # Cập nhật tin nhắn trạng thái
                 client.edit_message_text(chat_id=chat_id, message_id=status_message_id, text=f"✅ Thanh toán thành công cho giao dịch {transaction_id}!\nSố tiền: {price} VND\n{msg}")
