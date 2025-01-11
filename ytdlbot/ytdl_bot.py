@@ -867,7 +867,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
         while time.time() - start_time < TRANSACTION_TIMEOUT:
             time.sleep(CHECK_TRANSACTION_INTERVAL)
 
-            status, _, _, codebank, description = get_transaction_status(transaction_id)
+            status, _, _, codebank, description = get_transaction_status(codebank)
 
             if status == 'completed':
                 # Sửa caption của tin nhắn chứa ảnh QR
