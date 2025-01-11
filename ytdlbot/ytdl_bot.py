@@ -829,7 +829,7 @@ def generate_qr_code_and_track_payment(client: Client, chat_id: int, price: int,
     """
     try:
         # 1. Tạo mã QR code
-        headers = {'Authorization': f'Bearer {API_KEY}'}  # Thêm Authorization header nếu cần
+        headers = {'Authorization': f'Bearer {BEARER_TOKEN}'}  # Thêm Authorization header nếu cần
         payload = {
             'transaction_id': transaction_id,
             'amount': str(price)
